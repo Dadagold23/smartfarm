@@ -1,0 +1,24 @@
+# Mosquitto ACL for the ASIIS telemetry channel.
+#
+# Principle: every device may PUBLISH only under its own concrete topic
+# prefix  {base}/{farm_id}/{its_code}/telemetry/...  and may never
+# subscribe to other devices' topics. The backend subscriber account gets
+# read access to the whole tree.
+#
+# NOTE: the password file and this ACL are the broker-side half of device
+# auth; the ASIIS backend re-checks topic<->key binding per message
+# (defence in depth, and the only enforcement that exists on the
+# unauthenticated in-process fallback bus — see app/iot/bus.py docstring).
+
+# Backend service account: subscribe everything, publish nothing.
+user asiis-backend
+topic read asiis/v1/#
+
+# Device accounts: one write-pinned topic prefix per device, generated at
+# registration (farm_id and code are known then). Add one block per device:
+#
+# user PROBE-1                       # username = device code
+# topic write asiis/v1/7/PROBE-1/telemetry/soil
+#
+# user WX-1
+# topic write asiis/v1/7/WX-1/telemetry/weather

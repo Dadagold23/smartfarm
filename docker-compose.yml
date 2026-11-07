@@ -1,0 +1,51 @@
+# ASIIS production-parity infrastructure (architecture Phase 6).
+# Local development does NOT require this file — the backend defaults to
+# SQLite. Bring this up to switch DATABASE_URL to
+# postgresql+psycopg://asiis:asiis@localhost:5432/asiis (PostGIS image
+# provides spatial types for farm/zone geometry columns).
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: asiis
+      POSTGRES_PASSWORD: asiis
+      POSTGRES_DB: asiis
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U asiis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    # Used from Phase 2 onward: Celery jobs, MQTT bridges, token deny-list.
+
+  mosquitto:
+    # Phase 2 Module 9 — REAL MQTT device channel (TLS on 8883).
+    # Enable with: docker compose up mosquitto, then set MQTT_ENABLED=true.
+    # NOT verified on the current dev machine (no Docker available there);
+    # until brought up, the backend uses the in-process fallback bus with
+    # the identical topic schema (see backend/app/iot/bus.py + README).
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "8883:8883"
+    volumes:
+      - ./backend/iot/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./backend/iot/mosquitto/aclfile.example:/mosquitto/aclfile:ro
+      # Generate certs + passwd per mosquitto.conf comments, then mount:
+      # - ./backend/iot/mosquitto/certs:/mosquitto/certs:ro
+      # - ./backend/iot/mosquitto/passwd:/mosquitto/passwd:ro
+      - mosquitto-data:/mosquitto/data
+
+volumes:
+  pgdata:
+  mosquitto-data:

@@ -1,0 +1,539 @@
+# MASTER SOFTWARE DEVELOPMENT PROMPT
+# AGROSMART IRRIGATION INTELLIGENCE SYSTEM (ASIIS)
+### AI-Powered Smart Agriculture, Irrigation, Crop Protection, Harvest Intelligence and Farm Security Platform
+
+## 1. PROJECT VISION
+
+Act as a senior software architect, full-stack engineer, AI/ML engineer, IoT engineer, agricultural technology specialist, database architect and cybersecurity engineer.
+
+Design and develop a complete, production-oriented, AI-powered agricultural management platform named:
+
+**AgroSmart Irrigation Intelligence System (ASIIS).**
+
+The platform must combine Artificial Intelligence, Machine Learning, Computer Vision, Internet of Things (IoT), agricultural research, environmental monitoring, intelligent irrigation, weed identification, chemical spraying, farm intrusion detection and crop maturity prediction.
+
+The system must be capable of managing multiple farms, agricultural sections, crop varieties, irrigation zones, sprinkler devices, chemical application equipment, sensors and farm security infrastructure from a unified platform.
+
+The objective is to develop an intelligent agricultural ecosystem that reduces manual intervention, improves water-use efficiency, supports crop protection, provides early security alerts and helps farmers plan harvesting activities.
+
+## 2. DEVELOPMENT REQUIREMENTS
+
+Develop the complete full-stack application.
+
+Do not separate the project into disconnected frontend and backend demonstrations.
+
+Every module must have:
+- Functional frontend interfaces.
+- Backend business logic.
+- Database implementation.
+- API integration.
+- Authentication and permissions.
+- Validation and error handling.
+- Audit logging.
+- Automated testing.
+- Documentation.
+
+Do not use hardcoded demonstration data as a substitute for working features.
+
+Where actual hardware or third-party APIs are unavailable, implement realistic simulators with clear separation from production integrations.
+
+## 3. COMPLETE 22-MODULE IMPLEMENTATION
+
+### MODULE 1: Authentication and Access Management
+Implement secure registration, login, logout, password recovery, email verification, two-factor authentication, role-based permissions and session management.
+
+Roles must include Super Administrator, Farm Owner, Farm Manager, Agronomist, Agricultural Officer, Irrigation Technician, Security Officer, Field Supervisor and Data Analyst.
+
+### MODULE 2: Farm and Agricultural Land Management
+Implement multiple farm registration, GPS coordinates, land boundaries, geographical mapping, agricultural sections, irrigation zones, soil profiles and farm infrastructure management.
+
+Support GIS-based farm visualisation.
+
+### MODULE 3: AI Crop and Plant Identification
+Implement image-based plant identification using computer vision.
+
+Identify crop species, varieties where supported, growth stages and visible plant abnormalities.
+
+Provide confidence scores, alternative classifications and manual verification.
+
+### MODULE 4: Agricultural Knowledge Database
+Create a comprehensive agricultural knowledge repository containing crop characteristics, growth stages, soil requirements, crop coefficients, root depths, maturity durations, irrigation requirements, weed information and approved agricultural practices.
+
+Use verified research from FAO, IITA, NAERLS and recognised agricultural institutions.
+
+Maintain research sources, publication dates and validation records.
+
+### MODULE 5: Soil Intelligence
+Integrate soil moisture, temperature, pH, electrical conductivity and supported nutrient sensors.
+
+Monitor soil conditions, historical readings, sensor calibration and crop-specific moisture requirements.
+
+### MODULE 6: Weather Intelligence
+Integrate weather APIs and supported agricultural environmental data services.
+
+Monitor temperature, rainfall, humidity, wind speed, solar radiation and evapotranspiration.
+
+Use weather information when calculating irrigation and chemical application suitability.
+
+### MODULE 7: Intelligent Irrigation Scheduling
+Implement scientifically grounded irrigation calculations using FAO evapotranspiration methodology.
+
+Consider crop coefficients, soil-water balance, crop growth stage, effective rainfall, root-zone water availability and irrigation efficiency.
+
+Calculate appropriate irrigation quantities, schedules and durations for each agricultural zone.
+
+### MODULE 8: Smart Sprinkler Distribution Management
+Register and control individual sprinkler devices, pumps, valves and irrigation zones.
+
+Support scheduled, automatic, semi-automatic and manual operations.
+
+Monitor pressure, flow rate, operating duration, water distribution and device health.
+
+### MODULE 9: IoT Hardware Integration
+Integrate ESP32, Raspberry Pi, soil sensors, weather stations, water meters, pumps, valves, cameras and other supported devices.
+
+Use MQTT, REST APIs and WebSockets where appropriate.
+
+Support secure device authentication, telemetry, command acknowledgement, offline operation and reconnection.
+
+### MODULE 10: AI Agricultural Advisory
+Develop an AI-powered agricultural assistant capable of answering crop-related questions, interpreting agricultural information and providing irrigation and crop management recommendations.
+
+Ground recommendations in verified agricultural knowledge and farm-specific observations.
+
+### MODULE 11: Water Resource Management
+Manage reservoirs, boreholes, tanks, water sources, available water capacity, water consumption and water distribution.
+
+Prevent irrigation operations that exceed configured water availability.
+
+### MODULE 12: Crop Health and Growth Monitoring
+Track planting activities, crop growth, plant health, visible disease symptoms, growth anomalies and crop development history.
+
+Support image uploads and periodic crop assessments.
+
+### MODULE 13: Automation and Control Centre
+Develop a central automation engine supporting irrigation rules, crop protection workflows, device control, emergency shutdown, manual overrides and operational restrictions.
+
+All physical operations must pass through safety validation.
+
+### MODULE 14: Notification and Alert Management
+Implement in-app notifications, email, SMS, WhatsApp integration and mobile push notifications.
+
+Support scheduled, immediate, critical and escalation notifications.
+
+### MODULE 15: Agricultural Reports and Analytics
+Generate irrigation, water consumption, crop health, weed management, chemical application, security incident and harvest reports.
+
+Support PDF and Excel exports.
+
+### MODULE 16: Mobile Application
+Develop a responsive mobile application supporting farm monitoring, crop identification, irrigation control, weed detection, security alerts, harvest reminders and agricultural advisory.
+
+Support offline data collection and synchronisation.
+
+### MODULE 17: Administration and Configuration
+Implement comprehensive system administration, user management, crop database management, device management, agricultural parameters, permissions, API configurations, system settings, backups and audit logs.
+
+### MODULE 18: AI Learning and Predictive Intelligence
+Develop predictive models for irrigation requirements, water consumption, crop stress, crop performance and agricultural optimisation.
+
+Use historical farm information and validated agricultural observations.
+
+Evaluate model accuracy and prevent unvalidated predictions from independently controlling physical equipment.
+
+### MODULE 19: AI Weed Identification and Critical Growth Detection
+
+Develop an intelligent weed detection and management module.
+
+Requirements:
+
+1. Identify common and invasive weed species.
+2. Distinguish weeds from cultivated crops.
+3. Detect weed seedlings and growth stages.
+4. Identify flowering and seed production.
+5. Estimate weed density and field coverage.
+6. Identify proximity to cultivated crops.
+7. Assess potential competition for nutrients, water and sunlight.
+8. Classify infestation as Low, Moderate, High or Critical.
+9. Identify agricultural zones requiring intervention.
+10. Recommend appropriate weed management strategies.
+11. Record weed detection history.
+12. Monitor treatment effectiveness.
+13. Generate weed infestation reports.
+
+Support camera-based identification, uploaded photographs, drone imagery where available and manual field assessments.
+
+Use confidence scoring and human verification for uncertain identifications.
+
+### MODULE 20: Chemical Sprinkler and Agricultural Application Management
+
+Develop a dedicated chemical application management system.
+
+Manage approved herbicides, pesticides, insecticides, fungicides and other authorised agricultural treatments.
+
+Requirements:
+
+1. Agricultural chemical inventory.
+2. Chemical registration and approval records.
+3. Active ingredient information.
+4. Crop compatibility.
+5. Target weed, pest or disease identification.
+6. Product label and safety data storage.
+7. Application rate management.
+8. Chemical tank monitoring.
+9. Spraying equipment registration.
+10. Dedicated chemical spraying controllers.
+11. Zone-specific application management.
+12. Application scheduling.
+13. Flow and volume monitoring.
+14. Weather and wind restrictions.
+15. Chemical leakage detection.
+16. Operator authorisation.
+17. Application history.
+18. Equipment cleaning records.
+19. Pre-harvest interval tracking.
+20. Re-entry interval notifications.
+
+Chemical spraying equipment must be independently controlled from normal irrigation equipment.
+
+The application engine must validate the product label, target crop, approved use, application rate, operator authorisation and environmental restrictions.
+
+AI may recommend treatment, but an authorised human operator must approve each chemical application before execution.
+
+Never allow automatic chemical application solely on the basis of AI image identification.
+
+### MODULE 21: AI Farm Intrusion Detection and Security Management
+
+Develop a comprehensive farm surveillance and security notification system.
+
+Integrate AI-enabled cameras, motion sensors, infrared devices, smart fencing and supported perimeter monitoring equipment.
+
+Requirements:
+
+1. Human movement detection.
+2. Livestock intrusion detection.
+3. Wildlife detection.
+4. Vehicle detection.
+5. Suspicious movement identification.
+6. Restricted-zone monitoring.
+7. Farm entrance monitoring.
+8. Night surveillance.
+9. Real-time security alerts.
+10. Image and video evidence recording.
+11. GPS-based incident location.
+12. Security incident history.
+13. Security personnel assignment.
+14. Incident acknowledgement and resolution.
+15. Emergency escalation.
+16. False alarm management.
+
+Every security notification should include the farm, zone, detection time, detection category, device identification and available evidence.
+
+Support real-time alerts through mobile push notifications, SMS, email and WhatsApp.
+
+Implement privacy-conscious monitoring, secure access to recorded evidence and configurable retention.
+
+Do not claim that object detection establishes a person's identity or criminal intent.
+
+### MODULE 22: AI Crop Maturity and Harvest Period Prediction
+
+Develop an intelligent crop lifecycle and harvest forecasting system.
+
+Every planting batch must have an independent lifecycle record.
+
+Required information:
+
+- Farm identification.
+- Agricultural zone.
+- Crop species.
+- Crop variety.
+- Planting date.
+- Expected maturity duration.
+- Growth stage.
+- Estimated maturity date.
+- Expected harvest window.
+- Actual harvest date.
+- Harvest quantity.
+
+The system must calculate actual calendar dates using planting dates and validated crop maturity information.
+
+Support growing degree day calculations where appropriate, alongside crop variety, local weather, crop development and field observations.
+
+Implement:
+
+1. Expected maturity date.
+2. Expected harvest window.
+3. Harvest readiness assessment.
+4. Crop maturity monitoring.
+5. Harvest calendar.
+6. Harvest labour reminders.
+7. Storage preparation reminders.
+8. Transportation preparation reminders.
+9. Harvest records.
+10. Actual versus predicted maturity analysis.
+11. Crop yield records.
+12. Multiple planting cycles.
+
+ABSOLUTE DATE NOTIFICATION REQUIREMENT:
+
+The system must provide specific calendar dates and clock times for harvest-related notifications.
+
+Do not use vague messages such as "harvest is approaching."
+
+For example:
+
+Planting Date: 01 October 2026
+
+Expected Maturity Duration: 100 Days
+
+Predicted Maturity Date: 09 January 2027
+
+Notification Schedule:
+- 10 December 2026: 30-day advance reminder.
+- 25 December 2026: 15-day advance reminder.
+- 02 January 2027: 7-day advance reminder.
+- 07 January 2027: 2-day advance reminder.
+- 09 January 2027: Expected maturity notification.
+
+The dates above are illustrative.
+
+Actual dates must be calculated from the recorded planting date and validated crop maturity parameters.
+
+Support configurable notification intervals and local farm timezones.
+
+Distinguish between predicted maturity and confirmed harvest readiness.
+
+If the crop has not been harvested after the predicted date, continue reassessment and issue appropriate follow-up notifications.
+
+## 4. UNIFIED INTELLIGENCE ARCHITECTURE
+
+All 22 modules must communicate through shared services.
+
+Establish these central engines:
+
+A. Crop Intelligence Engine
+- Crop identification.
+- Crop health.
+- Growth-stage assessment.
+- Weed identification.
+- Crop maturity.
+
+B. Irrigation Intelligence Engine
+- Soil moisture assessment.
+- Weather assessment.
+- Crop water calculations.
+- Irrigation scheduling.
+- Sprinkler control.
+
+C. Crop Protection Engine
+- Weed threat analysis.
+- Treatment recommendations.
+- Chemical inventory.
+- Chemical application approval.
+- Spraying equipment control.
+
+D. Farm Security Engine
+- Intrusion detection.
+- Animal movement detection.
+- Perimeter monitoring.
+- Incident management.
+- Security notifications.
+
+E. Lifecycle and Harvest Engine
+- Planting records.
+- Growth timelines.
+- Maturity predictions.
+- Absolute-date reminders.
+- Harvest reporting.
+
+F. Central Notification Engine
+- Immediate alerts.
+- Scheduled reminders.
+- Escalation.
+- Delivery tracking.
+- User notification preferences.
+
+## 5. DATABASE REQUIREMENTS
+
+Create properly related database entities for all modules.
+
+In addition to the original database structure, include:
+
+- weed_species
+- weed_identifications
+- weed_detection_records
+- weed_growth_assessments
+- weed_infested_zones
+- weed_management_plans
+- chemical_products
+- chemical_ingredients
+- chemical_approvals
+- chemical_inventory
+- chemical_application_plans
+- chemical_application_events
+- chemical_equipment
+- chemical_tanks
+- chemical_safety_records
+- security_devices
+- security_zones
+- security_events
+- intrusion_detections
+- security_evidence
+- security_incidents
+- security_responses
+- planting_batches
+- crop_lifecycle_records
+- crop_maturity_predictions
+- harvest_schedules
+- harvest_notifications
+- harvest_records
+- notification_schedules
+- notification_delivery_logs
+
+Use proper foreign keys, indexing, transaction management and data integrity constraints.
+
+Support multiple farms and multiple planting batches without cross-farm data leakage.
+
+## 6. TECHNOLOGY STACK
+
+Recommended architecture:
+
+- Frontend: React.js / Next.js.
+- Backend: Python FastAPI.
+- Database: PostgreSQL with PostGIS.
+- AI/ML: PyTorch.
+- Computer Vision: OpenCV.
+- IoT Communication: MQTT.
+- MQTT Broker: EMQX or Mosquitto.
+- Hardware: ESP32 and Raspberry Pi.
+- Mobile: Flutter.
+- Background Processing: Celery and Redis.
+- Analytics: Chart.js or ECharts.
+- API Documentation: OpenAPI / Swagger.
+- Deployment: Linux VPS or cloud infrastructure.
+
+Maintain modular services and well-documented API contracts.
+
+## 7. SYSTEM SAFETY REQUIREMENTS
+
+Implement independent safety interlocks for:
+
+- Irrigation pumps.
+- Chemical spraying equipment.
+- Water valves.
+- Reservoir levels.
+- Water pressure.
+- Flow rates.
+- Chemical leakage.
+- Spraying weather conditions.
+- Device communication failures.
+- Maximum operation durations.
+
+Chemical application must require explicit human approval.
+
+Emergency shutdown must be available locally, independently of internet connectivity.
+
+The system must never allow irrigation and chemical application commands to conflict.
+
+## 8. DASHBOARD REQUIREMENTS
+
+Develop a unified dashboard displaying:
+
+- Total farms.
+- Total agricultural zones.
+- Registered crops.
+- Active irrigation operations.
+- Soil moisture conditions.
+- Current weather.
+- Water availability.
+- Sprinkler status.
+- Weed infestation alerts.
+- Chemical application activities.
+- Farm security incidents.
+- Upcoming crop maturity dates.
+- Upcoming harvest schedules.
+- Device health.
+- AI recommendations.
+
+Provide separate workspaces for farm management, agricultural officers, irrigation technicians, chemical application officers, security personnel and administrators.
+
+## 9. DEVELOPMENT AND TESTING
+
+Develop the system in coordinated phases without sacrificing full-stack integration.
+
+Each phase must include database development, backend implementation, frontend implementation, API integration, permissions, automated testing and documentation.
+
+Use sensor and equipment simulators until physical devices are available.
+
+Test:
+- Crop identification accuracy.
+- Weed detection accuracy.
+- Irrigation calculation accuracy.
+- Sprinkler operation.
+- Chemical application authorisation.
+- Chemical safety interlocks.
+- Intrusion detection and notification delivery.
+- Harvest date calculations.
+- Notification scheduling.
+- Offline operation.
+- Security and access controls.
+- Multi-farm data isolation.
+
+## 10. FINAL ACCEPTANCE CRITERIA
+
+The completed platform must demonstrate:
+
+1. Registration and management of multiple farms.
+2. Identification of crops using AI.
+3. Monitoring of crop growth and health.
+4. Identification and classification of weeds.
+5. Detection of critical weed infestation.
+6. Generation of appropriate weed management recommendations.
+7. Management of approved agricultural chemicals.
+8. Human-approved chemical spraying operations.
+9. Independent irrigation and chemical distribution control.
+10. Real-time soil and weather monitoring.
+11. Scientific crop water requirement calculations.
+12. Automated sprinkler distribution.
+13. Water resource monitoring.
+14. AI agricultural advisory.
+15. Intrusion and animal detection.
+16. Immediate security notifications.
+17. Planting records and crop lifecycle tracking.
+18. Absolute-date crop maturity predictions.
+19. Advance harvest notifications.
+20. Harvest records and analytics.
+21. Mobile and web application integration.
+22. Reliable offline safety operation.
+
+## 11. DEVELOPMENT RULE
+
+Before modifying existing code, inspect the complete project structure, database, existing modules, dependencies and application workflows.
+
+Preserve functional features and avoid unnecessary rewrites.
+
+Identify missing functionality, integration gaps, security weaknesses and database inconsistencies.
+
+Implement features in logical development phases while ensuring that every completed module is fully integrated into the central platform.
+
+Do not mark a module complete until its database, backend, frontend, integrations and tests have been verified.
+
+Provide a development report after every phase containing:
+- Implemented features.
+- Modified files.
+- Database changes.
+- API endpoints.
+- Test results.
+- Outstanding issues.
+- Security considerations.
+- Deployment instructions.
+
+## FINAL DELIVERABLE
+
+Deliver a complete, secure, scalable and production-oriented AI-powered agricultural management platform that combines:
+
+SMART IRRIGATION + AI CROP IDENTIFICATION + WEED DETECTION + CHEMICAL SPRAYING + FARM SECURITY + HARVEST INTELLIGENCE.
+
+The final system must be capable of supporting actual agricultural operations through connected IoT hardware while providing a unified digital management environment for farmers, agricultural organisations and commercial farm operators.
+
+The objective is not merely to create an irrigation application. It is to develop an intelligent agricultural ecosystem that manages crop growth, water distribution, crop protection, farm security and harvesting activities throughout the agricultural lifecycle.

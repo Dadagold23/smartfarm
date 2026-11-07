@@ -1,3 +1,20 @@
+.qoder/settings.local.json
+
+.env
+.env.*
+!.env.example
+
+*.db
+*.sqlite
+*.sqlite3
+*.bak
+
+__pycache__/
+.pytest_cache/
+.venv/
+node_modules/
+.next/
+
 # Python
 __pycache__/
 *.py[cod]

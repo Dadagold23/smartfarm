@@ -17,11 +17,11 @@ RequiresAdvisoryGenerate = Annotated[
 
 @router.get("", response_model=AdvisoryOut)
 def get_advisory(
-    farm_id: int,
-    zone_id: int | None = None,
     db: DbSession,
     current_user: CurrentUser,
     held: RequiresAdvisoryGenerate,
+    farm_id: int,
+    zone_id: int | None = None,
 ):
     """Generate a field-aware advisory based on live farm status and agronomic observations."""
     farm_service.get_accessible_farm(db, farm_id, current_user, "read", held)
@@ -31,11 +31,11 @@ def get_advisory(
 
 @router.get("/generate", response_model=AdvisoryOut)
 def get_advisory_generate(
-    farm_id: int = Query(...),
-    zone_id: int | None = Query(None),
     db: DbSession,
     current_user: CurrentUser,
     held: RequiresAdvisoryGenerate,
+    farm_id: int = Query(...),
+    zone_id: int | None = Query(None),
 ):
     """Alias route that keeps the advisory generator explicit and query-driven."""
     return get_advisory(

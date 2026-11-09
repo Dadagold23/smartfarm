@@ -13,10 +13,11 @@ Two hard-boundary layers, by design:
 
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from app.models.iot import DeviceStatus, DeviceType, FaultType
+from app.models.iot import DeviceCommandStatus, DeviceStatus, DeviceType, FaultType
 from app.models.soil import ReadingSource
 
 DEVICE_CODE_RE = r"^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$"
@@ -98,6 +99,36 @@ class DeviceStatusOut(BaseModel):
     last_seen_minutes_ago: int | None
     is_stale: bool
     open_faults: list[FaultOut] = []
+
+
+class DeviceCommandCreate(BaseModel):
+    command: str = Field(min_length=1, max_length=120)
+    payload: dict[str, Any] = Field(default_factory=dict)
+    requires_ack: bool = True
+    ttl_seconds: int | None = Field(default=300, ge=30, le=86400)
+
+
+class DeviceCommandAck(BaseModel):
+    status: DeviceCommandStatus = DeviceCommandStatus.acked
+    message: str | None = Field(default=None, max_length=500)
+
+
+class DeviceCommandOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    device_id: int
+    farm_id: int
+    command: str
+    payload_json: str
+    status: DeviceCommandStatus
+    attempts: int
+    sent_at: datetime | None
+    acked_at: datetime | None
+    ack_message: str | None
+    correlation_id: str
+    expires_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
 
 
 # ---------------------------------------------------------------------------

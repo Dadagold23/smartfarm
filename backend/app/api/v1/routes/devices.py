@@ -11,7 +11,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.deps import CurrentUser, DbSession, client_ip, require_permissions
+from app.models.iot import DeviceCommandStatus
 from app.schemas.iot import (
+    DeviceCommandAck,
+    DeviceCommandCreate,
+    DeviceCommandOut,
     DeviceCreate,
     DeviceOut,
     DeviceRegisterOut,
@@ -121,3 +125,62 @@ def revoke_device(
     return DeviceOut.model_validate(device_service.revoke_device(
         db, device_id, current_user, held, ip_address=client_ip(request)
     ))
+
+
+@router.post("/{device_id}/commands", response_model=DeviceCommandOut, status_code=201)
+def enqueue_device_command(
+    device_id: int,
+    payload: DeviceCommandCreate,
+    request: Request,
+    db: DbSession,
+    current_user: CurrentUser,
+    held: RequiresDeviceManage,
+):
+    device = device_service.get_accessible_device(db, device_id, current_user, held, "manage")
+    item = device_service.enqueue_device_command(
+        db,
+        device,
+        payload.command,
+        payload.payload,
+        requires_ack=payload.requires_ack,
+        ttl_seconds=payload.ttl_seconds,
+    )
+    return DeviceCommandOut.model_validate(item)
+
+
+@router.get("/{device_id}/commands", response_model=dict)
+def list_device_commands(
+    device_id: int,
+    db: DbSession,
+    current_user: CurrentUser,
+    held: RequiresDeviceManage,
+    limit: int = 50,
+    offset: int = 0,
+):
+    device = device_service.get_accessible_device(db, device_id, current_user, held, "read")
+    items, total = device_service.list_device_commands(db, device, limit=limit, offset=offset)
+    return {
+        "items": [DeviceCommandOut.model_validate(item).model_dump(mode="json") for item in items],
+        "meta": {"total": total, "limit": limit, "offset": offset},
+    }
+
+
+@router.post("/{device_id}/commands/{command_id}/ack", response_model=DeviceCommandOut)
+def acknowledge_device_command(
+    device_id: int,
+    command_id: int,
+    payload: DeviceCommandAck,
+    request: Request,
+    db: DbSession,
+    current_user: CurrentUser,
+    held: RequiresDeviceManage,
+):
+    device = device_service.get_accessible_device(db, device_id, current_user, held, "manage")
+    item = device_service.acknowledge_device_command(
+        db,
+        device,
+        command_id,
+        status=payload.status,
+        message=payload.message,
+    )
+    return DeviceCommandOut.model_validate(item)

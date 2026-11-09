@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from app.models.iot import DEVICE_CODE_RE
 
 TELEMETRY_SEGMENT = "telemetry"
+COMMAND_SEGMENT = "cmd"
 KINDS = ("soil", "weather")
 
 _FARM_ID_RE = re.compile(r"^[1-9][0-9]{0,9}$")
@@ -54,6 +55,16 @@ def build_topic(base: str, farm_id: int, device_code: str, kind: str) -> str:
     if not _DEVICE_CODE_RE.match(device_code):
         raise TopicError(f"device_code {device_code!r} violates the registry pattern")
     return f"{base.strip('/')}/{farm_id}/{device_code}/{TELEMETRY_SEGMENT}/{kind}"
+
+
+def build_command_topic(base: str, farm_id: int, device_code: str, command: str = "control") -> str:
+    if not _FARM_ID_RE.match(str(farm_id)):
+        raise TopicError(f"farm_id must be a positive integer, got {farm_id!r}")
+    if not _DEVICE_CODE_RE.match(device_code):
+        raise TopicError(f"device_code {device_code!r} violates the registry pattern")
+    if not command or command.strip() != command:
+        raise TopicError("command identifier must be a non-empty, trimmed value")
+    return f"{base.strip('/')}/{farm_id}/{device_code}/{COMMAND_SEGMENT}/{command}"
 
 
 def subscription_wildcard(base: str) -> str:

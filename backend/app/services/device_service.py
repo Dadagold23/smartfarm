@@ -6,7 +6,9 @@ device requires farm-update access on its farm, reading requires farm-read
 access. Cross-owner device ids return 404, never 403 (no enumeration).
 """
 
-from datetime import datetime, timezone
+import json
+from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
@@ -14,8 +16,10 @@ from app.core.config import get_settings
 from app.core.exceptions import AuthenticationError, NotFoundError
 from app.core.permissions import satisfies
 from app.core.security import generate_device_key, hash_device_key, verify_device_key
+from app.iot.bus import BusCredentials, get_bus
+from app.iot.topics import build_command_topic
 from app.models.farm import Farm, IrrigationZone
-from app.models.iot import Device, DeviceFaultEvent, DeviceStatus
+from app.models.iot import Device, DeviceCommand, DeviceCommandStatus, DeviceFaultEvent, DeviceStatus
 from app.models.user import User
 from app.services import audit_service, farm_service
 
@@ -238,6 +242,100 @@ def minutes_since_seen(device: Device, now: datetime | None = None) -> int | Non
     if ref is None:
         return None
     return int((now - ref).total_seconds() // 60)
+
+
+def enqueue_device_command(
+    db: Session,
+    device: Device,
+    command: str,
+    payload: dict | None = None,
+    *,
+    requires_ack: bool = True,
+    ttl_seconds: int | None = 300,
+) -> DeviceCommand:
+    """Queue a command to a device and emit it on the fallback command bus.
+
+    The system records the command in the database and publishes a transport
+    message that mirrors the MQTT command topic contract used by the gateway.
+    """
+    payload = payload or {}
+    now = utcnow_naive()
+    expires_at = now + timedelta(seconds=max(ttl_seconds or 300, 30))
+    item = DeviceCommand(
+        device_id=device.id,
+        farm_id=device.farm_id,
+        command=command.strip()[:120],
+        payload_json=json.dumps(payload, separators=(",", ":"), sort_keys=True),
+        status=DeviceCommandStatus.queued,
+        attempts=0,
+        sent_at=now,
+        expires_at=expires_at,
+        correlation_id=f"{device.id}-{uuid4().hex[:12]}",
+    )
+    db.add(item)
+    db.flush()
+
+    topic = build_command_topic(
+        get_settings().MQTT_BASE_TOPIC,
+        device.farm_id,
+        device.code,
+        command=item.command,
+    )
+    bus = get_bus()
+    bus.publish(
+        topic,
+        json.dumps({
+            "correlation_id": item.correlation_id,
+            "command": item.command,
+            "payload": payload,
+            "requires_ack": requires_ack,
+            "timestamp": now.isoformat(),
+        }),
+        credentials=BusCredentials(username=device.code, password=""),
+    )
+    item.status = DeviceCommandStatus.sent if requires_ack else DeviceCommandStatus.acked
+    if not requires_ack:
+        item.acked_at = now
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def acknowledge_device_command(
+    db: Session,
+    device: Device,
+    command_id: int,
+    *,
+    status: DeviceCommandStatus = DeviceCommandStatus.acked,
+    message: str | None = None,
+) -> DeviceCommand:
+    item = (
+        db.query(DeviceCommand)
+        .filter(DeviceCommand.id == command_id, DeviceCommand.device_id == device.id)
+        .first()
+    )
+    if item is None:
+        raise NotFoundError(f"device command {command_id} not found")
+    item.status = status
+    item.acked_at = utcnow_naive()
+    item.ack_message = message[:500] if message else None
+    item.attempts = max(item.attempts, 1)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def list_device_commands(
+    db: Session,
+    device: Device,
+    *,
+    limit: int = 50,
+    offset: int = 0,
+) -> tuple[list[DeviceCommand], int]:
+    q = db.query(DeviceCommand).filter(DeviceCommand.device_id == device.id)
+    total = q.count()
+    items = q.order_by(DeviceCommand.created_at.desc()).limit(limit).offset(offset).all()
+    return items, total
 
 
 def list_faults(

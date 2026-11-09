@@ -18,6 +18,8 @@ from app.models.farm import (  # noqa: F401
 )
 from app.models.iot import (  # noqa: F401
     Device,
+    DeviceCommand,
+    DeviceCommandStatus,
     DeviceFaultEvent,
     DeviceStatus,
     DeviceType,
@@ -71,6 +73,8 @@ __all__ = [
     "WaterSourceType",
     "AuditLog",
     "Device",
+    "DeviceCommand",
+    "DeviceCommandStatus",
     "DeviceFaultEvent",
     "DeviceStatus",
     "DeviceType",

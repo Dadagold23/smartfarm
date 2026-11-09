@@ -69,6 +69,7 @@ PERMISSIONS: dict[str, str] = {
     "health.manage": "Record and update crop health assessments",
     "schedule.read": "View calculated irrigation schedules and scientific water balance",
     "schedule.manage": "Trigger calculation and approve or reject irrigation schedules",
+    "advisory.generate": "Generate agronomic guidance for farm zones using live agronomic observations",
     "valve.control": "Start/stop irrigation valves and manage zone runtime state on accessible farms",
     "automation.manage": "Configure automatic irrigation programs and safety interlocks",
     "estop.trigger": "Trigger or clear emergency stop and disable unsafe irrigation flows",
@@ -98,6 +99,7 @@ ROLE_PERMISSIONS: dict[str, dict[str, set[str]]] = {
             "planting.read", "planting.manage",
             "health.read", "health.manage",
             "schedule.read", "schedule.manage",
+            "advisory.generate",
             "valve.control", "automation.manage", "estop.trigger",
             "audit.read", "audit.read.all",
         },
@@ -115,6 +117,7 @@ ROLE_PERMISSIONS: dict[str, dict[str, set[str]]] = {
             "planting.read", "planting.manage",
             "health.read", "health.manage",
             "schedule.read", "schedule.manage",
+            "advisory.generate",
             "valve.control", "automation.manage", "estop.trigger",
             "audit.read",
             # NOTE: farm_manager does NOT get user.read — account management
@@ -148,7 +151,7 @@ ROLE_PERMISSIONS: dict[str, dict[str, set[str]]] = {
             "planting.read",
             "health.read", "health.manage",
             "schedule.read", "schedule.manage",
-            # Extension (Phase 5): advisory.generate
+            "advisory.generate",
         },
     },
     "viewer": {

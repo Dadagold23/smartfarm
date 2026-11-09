@@ -20,6 +20,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Integer,
     String,
     Text,
     UniqueConstraint,
@@ -40,6 +41,14 @@ class DeviceType(str, enum.Enum):
 class DeviceStatus(str, enum.Enum):
     active = "active"
     revoked = "revoked"
+
+
+class DeviceCommandStatus(str, enum.Enum):
+    queued = "queued"
+    sent = "sent"
+    acked = "acked"
+    failed = "failed"
+    expired = "expired"
 
 
 class FaultType(str, enum.Enum):
@@ -105,9 +114,39 @@ class Device(Base, TimestampMixin, SoftDeleteMixin):
     fault_events: Mapped[list["DeviceFaultEvent"]] = relationship(
         back_populates="device", cascade="all, delete-orphan", lazy="selectin"
     )
+    commands: Mapped[list["DeviceCommand"]] = relationship(
+        back_populates="device", cascade="all, delete-orphan", lazy="selectin"
+    )
 
     # ---------------- Phase 4 extension points (no fake data) -------------
     # valve controllers / command channel downlink (Module 8/9 safety envelope)
+
+
+class DeviceCommand(Base, TimestampMixin):
+    __tablename__ = "device_commands"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    device_id: Mapped[int] = mapped_column(
+        ForeignKey("devices.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    farm_id: Mapped[int] = mapped_column(
+        ForeignKey("farms.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    command: Mapped[str] = mapped_column(String(120), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    status: Mapped[DeviceCommandStatus] = mapped_column(
+        Enum(DeviceCommandStatus, values_callable=lambda e: [m.value for m in e]),
+        nullable=False,
+        default=DeviceCommandStatus.queued,
+    )
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    acked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    ack_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    correlation_id: Mapped[str] = mapped_column(String(64), default="", nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    device: Mapped[Device] = relationship(back_populates="commands")
 
 
 class DeviceFaultEvent(Base, TimestampMixin):

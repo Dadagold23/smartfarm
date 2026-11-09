@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.routes import (
+    advisory,
     audit,
     auth,
     crops,
@@ -40,3 +41,6 @@ api_router.include_router(soil_profiles.router, prefix="/soil-profiles", tags=["
 api_router.include_router(plantings.router, prefix="/plantings", tags=["Planting Lifecycle"])
 api_router.include_router(schedules.router, prefix="/schedules", tags=["Irrigation Scheduling"])
 api_router.include_router(vision.router, prefix="/vision", tags=["Crop & Weed Identification"])
+# Phase 5 — Module 10: AI agricultural advisory
+api_router.include_router(advisory.router, prefix="/advisory", tags=["AI Advisory"])
+api_router.include_router(advisory.router, prefix="/advisories", tags=["AI Advisory"])

@@ -34,9 +34,14 @@ class SoftDeleteMixin:
 
 # imported for alembic autogenerate registry
 def register_all_models() -> None:  # pragma: no cover - registry helper
-    import app.models.user  # noqa: F401
-    import app.models.farm  # noqa: F401
     import app.models.audit  # noqa: F401
-    import app.models.iot  # noqa: F401  (Phase 2: devices + fault events)
-    import app.models.soil  # noqa: F401  (Phase 2: Module 5 readings)
-    import app.models.weather  # noqa: F401  (Phase 2: Module 6 obs/forecasts)
+    import app.models.crop  # noqa: F401
+    import app.models.farm  # noqa: F401
+    import app.models.iot  # noqa: F401
+    import app.models.planting  # noqa: F401
+    import app.models.schedule  # noqa: F401
+    import app.models.soil  # noqa: F401
+    import app.models.soil_profile  # noqa: F401
+    import app.models.user  # noqa: F401
+    import app.models.vision  # noqa: F401
+    import app.models.weather  # noqa: F401

@@ -23,7 +23,7 @@ from app.services.audit_service import record_audit_event
 # ---------------------------------------------------------------------------
 FAO_56_STANDARD_CROPS: list[dict] = [
     {
-        "common_name": "Maize (Field Corn)",
+        "common_name": "Maize",
         "scientific_name": "Zea mays",
         "category": CropCategory.cereal,
         "variety": "Standard Hybrid",
@@ -40,7 +40,7 @@ FAO_56_STANDARD_CROPS: list[dict] = [
         "salinity_threshold_ec_ds_m": Decimal("1.70"),
         "research_source": "FAO Irrigation and Drainage Paper 56, Table 12 & 22",
         "stages": [
-            {"stage_name": GrowthStageName.initial, "stage_order": 1, "duration_days": 20, "kc": Decimal("0.30"), "root_m": Decimal("0.80")},
+            {"stage_name": GrowthStageName.initial, "stage_order": 1, "duration_days": 20, "kc": Decimal("0.40"), "root_m": Decimal("0.80")},
             {"stage_name": GrowthStageName.development, "stage_order": 2, "duration_days": 35, "kc": Decimal("0.75"), "root_m": Decimal("1.00")},
             {"stage_name": GrowthStageName.mid_season, "stage_order": 3, "duration_days": 40, "kc": Decimal("1.20"), "root_m": Decimal("1.20")},
             {"stage_name": GrowthStageName.late_season, "stage_order": 4, "duration_days": 30, "kc": Decimal("0.60"), "root_m": Decimal("1.20")},
@@ -266,7 +266,11 @@ def seed_standard_crop_database(db: Session) -> int:
 
     if created_count > 0:
         db.commit()
-    return created_count
+
+    total_count = db.execute(
+        select(func.count()).select_from(CropSpecies).where(CropSpecies.is_deleted.is_(False))
+    ).scalar() or 0
+    return total_count
 
 
 def list_crop_species(
@@ -328,7 +332,7 @@ def create_soil_profile(
 ) -> SoilProfile:
     """Create a new soil profile, defaulting hydraulic properties from USDA tables if omitted."""
     # Apply defaults if not specified
-    defaults = USDA_SOIL_DEFAULTS.get(texture_type, (Decimal("0.27"), Decimal("0.12"), Decimal("10.0")))
+    defaults = USDA_SOIL_DEFAULTS.get(texture_type, (Decimal("0.27"), Decimal("0.12"), Decimal("13.0")))
     fc = field_capacity if field_capacity is not None else defaults[0]
     wp = wilting_point if wilting_point is not None else defaults[1]
     intake = intake_rate_mm_per_hour if intake_rate_mm_per_hour is not None else defaults[2]
@@ -343,7 +347,7 @@ def create_soil_profile(
         description=description.strip(),
         field_capacity=fc,
         wilting_point=wp,
-        saturation=saturation or (fc + Decimal("0.15")),
+        saturation=saturation if saturation is not None else (fc + Decimal("0.19")),
         intake_rate_mm_per_hour=intake,
         ph=ph,
         electrical_conductivity_ds_m=ec_ds_m,
@@ -357,6 +361,7 @@ def create_soil_profile(
         resource_type="soil_profile",
         resource_id=str(profile.id),
         user_id=actor_id,
+        actor_label=("system" if actor_id is None else f"user:{actor_id}"),
         details={"farm_id": farm_id, "name": name, "texture": texture_type.value},
         ip_address=ip_address,
     )

@@ -13,6 +13,7 @@ from app.models.farm import (  # noqa: F401
     FarmStatus,
     IrrigationZone,
     WaterSourceType,
+    ZoneControlMode,
     ZoneStatus,
 )
 from app.models.iot import (  # noqa: F401
@@ -66,6 +67,7 @@ __all__ = [
     "IrrigationZone",
     "FarmStatus",
     "ZoneStatus",
+    "ZoneControlMode",
     "WaterSourceType",
     "AuditLog",
     "Device",

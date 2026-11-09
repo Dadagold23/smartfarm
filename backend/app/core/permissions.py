@@ -69,11 +69,12 @@ PERMISSIONS: dict[str, str] = {
     "health.manage": "Record and update crop health assessments",
     "schedule.read": "View calculated irrigation schedules and scientific water balance",
     "schedule.manage": "Trigger calculation and approve or reject irrigation schedules",
+    "valve.control": "Start/stop irrigation valves and manage zone runtime state on accessible farms",
+    "automation.manage": "Configure automatic irrigation programs and safety interlocks",
+    "estop.trigger": "Trigger or clear emergency stop and disable unsafe irrigation flows",
     # ------------------------------------------------------------------
-    # Extension points for later phases (codes reserved, not enforced yet):
-    #   Phase 4: valve.control, automation.manage, estop.trigger
-    #   Phase 5: mobile.access, advisory.generate
-    #   Phase 6: settings.manage, backup.manage
+    # Phase 5: mobile.access, advisory.generate
+    # Phase 6: settings.manage, backup.manage
     # ------------------------------------------------------------------
 }
 
@@ -97,6 +98,7 @@ ROLE_PERMISSIONS: dict[str, dict[str, set[str]]] = {
             "planting.read", "planting.manage",
             "health.read", "health.manage",
             "schedule.read", "schedule.manage",
+            "valve.control", "automation.manage", "estop.trigger",
             "audit.read", "audit.read.all",
         },
     },
@@ -113,6 +115,7 @@ ROLE_PERMISSIONS: dict[str, dict[str, set[str]]] = {
             "planting.read", "planting.manage",
             "health.read", "health.manage",
             "schedule.read", "schedule.manage",
+            "valve.control", "automation.manage", "estop.trigger",
             "audit.read",
             # NOTE: farm_manager does NOT get user.read — account management
             # is an admin concern; registration is public.
@@ -130,7 +133,7 @@ ROLE_PERMISSIONS: dict[str, dict[str, set[str]]] = {
             "planting.read",
             "health.read", "health.manage",
             "schedule.read",
-            # Extension (Phase 4): valve.control, estop.trigger
+            "valve.control", "estop.trigger",
         },
     },
     "advisor": {

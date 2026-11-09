@@ -11,7 +11,7 @@ from app.schemas.common import PageMeta
 
 
 class CropGrowthStageOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, json_encoders={Decimal: float})
 
     id: int
     crop_id: int
@@ -48,7 +48,7 @@ class CropSpeciesCreate(CropSpeciesBase):
 
 
 class CropSpeciesOut(CropSpeciesBase):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, json_encoders={Decimal: float})
 
     id: int
     is_verified: bool
@@ -91,7 +91,7 @@ class SoilProfileUpdate(BaseModel):
 
 
 class SoilProfileOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, json_encoders={Decimal: float})
 
     id: int
     farm_id: int

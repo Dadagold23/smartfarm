@@ -24,17 +24,29 @@ from app.db.base import Base, SoftDeleteMixin, TimestampMixin
 
 class SoilTextureType(str, enum.Enum):
     sand = "sand"
+    SAND = "sand"
     loamy_sand = "loamy_sand"
+    LOAMY_SAND = "loamy_sand"
     sandy_loam = "sandy_loam"
+    SANDY_LOAM = "sandy_loam"
     loam = "loam"
+    LOAM = "loam"
     silt_loam = "silt_loam"
+    SILT_LOAM = "silt_loam"
     silt = "silt"
+    SILT = "silt"
     sandy_clay_loam = "sandy_clay_loam"
+    SANDY_CLAY_LOAM = "sandy_clay_loam"
     clay_loam = "clay_loam"
+    CLAY_LOAM = "clay_loam"
     silty_clay_loam = "silty_clay_loam"
+    SILTY_CLAY_LOAM = "silty_clay_loam"
     sandy_clay = "sandy_clay"
+    SANDY_CLAY = "sandy_clay"
     silty_clay = "silty_clay"
+    SILTY_CLAY = "silty_clay"
     clay = "clay"
+    CLAY = "clay"
 
 
 # FAO-56 Table 19 / USDA Soil Taxonomy hydraulic benchmarks:
@@ -43,7 +55,7 @@ USDA_SOIL_DEFAULTS: dict[SoilTextureType, tuple[Decimal, Decimal, Decimal]] = {
     SoilTextureType.sand: (Decimal("0.12"), Decimal("0.05"), Decimal("50.0")),
     SoilTextureType.loamy_sand: (Decimal("0.14"), Decimal("0.06"), Decimal("30.0")),
     SoilTextureType.sandy_loam: (Decimal("0.18"), Decimal("0.08"), Decimal("20.0")),
-    SoilTextureType.loam: (Decimal("0.27"), Decimal("0.12"), Decimal("10.0")),
+    SoilTextureType.loam: (Decimal("0.27"), Decimal("0.12"), Decimal("13.0")),
     SoilTextureType.silt_loam: (Decimal("0.31"), Decimal("0.13"), Decimal("6.5")),
     SoilTextureType.silt: (Decimal("0.30"), Decimal("0.09"), Decimal("5.0")),
     SoilTextureType.sandy_clay_loam: (Decimal("0.27"), Decimal("0.17"), Decimal("4.5")),

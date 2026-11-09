@@ -40,6 +40,15 @@ class ZoneStatus(str, enum.Enum):
     disabled = "disabled"
 
 
+class ZoneControlMode(str, enum.Enum):
+    manual = "manual"
+    automatic = "automatic"
+    semi_automatic = "semi_automatic"
+    scheduled = "scheduled"
+    sensor_triggered = "sensor_triggered"
+    weather_adjusted = "weather_adjusted"
+
+
 class Farm(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "farms"
     __table_args__ = (
@@ -131,6 +140,17 @@ class IrrigationZone(Base, TimestampMixin, SoftDeleteMixin):
     max_application_mm_per_hour: Mapped[Decimal | None] = mapped_column(
         Numeric(6, 2), nullable=True
     )
+    control_mode: Mapped[ZoneControlMode] = mapped_column(
+        Enum(ZoneControlMode, values_callable=lambda e: [m.value for m in e]),
+        nullable=False,
+        default=ZoneControlMode.automatic,
+    )
+    is_running: Mapped[bool] = mapped_column(default=False, nullable=False)
+    emergency_stop: Mapped[bool] = mapped_column(default=False, nullable=False)
+    current_flow_lpm: Mapped[Decimal | None] = mapped_column(Numeric(8, 2), nullable=True)
+    pressure_bar: Mapped[Decimal | None] = mapped_column(Numeric(6, 2), nullable=True)
+    last_started_at: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_stopped_at: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Phase 3: Soil physical profile for water retention (field capacity, wilting point)
     soil_profile_id: Mapped[int | None] = mapped_column(

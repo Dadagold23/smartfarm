@@ -3,9 +3,11 @@
 from datetime import datetime
 from decimal import Decimal
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.models.farm import FarmStatus, WaterSourceType, ZoneStatus
+from app.models.farm import FarmStatus, WaterSourceType, ZoneControlMode, ZoneStatus
 
 CODE_RE = r"^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$"
 
@@ -104,6 +106,11 @@ class ZoneBase(GeometryMixin):
     area_ha: Decimal | None = Field(default=None, gt=0)
     sequence_number: int = Field(default=0, ge=0)
     status: ZoneStatus = ZoneStatus.active
+    control_mode: ZoneControlMode = ZoneControlMode.automatic
+    is_running: bool = False
+    emergency_stop: bool = False
+    current_flow_lpm: Decimal | None = Field(default=None, ge=0, le=2000)
+    pressure_bar: Decimal | None = Field(default=None, ge=0, le=100)
     max_application_mm_per_hour: Decimal | None = Field(default=None, gt=0, le=500)
 
 
@@ -117,7 +124,17 @@ class ZoneUpdate(GeometryMixin):
     area_ha: Decimal | None = Field(default=None, gt=0)
     sequence_number: int | None = Field(default=None, ge=0)
     status: ZoneStatus | None = None
+    control_mode: ZoneControlMode | None = None
+    is_running: bool | None = None
+    emergency_stop: bool | None = None
+    current_flow_lpm: Decimal | None = Field(default=None, ge=0, le=2000)
+    pressure_bar: Decimal | None = Field(default=None, ge=0, le=100)
     max_application_mm_per_hour: Decimal | None = Field(default=None, gt=0, le=500)
+
+
+class ZoneControlRequest(BaseModel):
+    action: Literal["start", "stop", "emergency_stop", "clear_emergency_stop"]
+    control_mode: ZoneControlMode | None = None
 
 
 class ZoneOut(ZoneBase):

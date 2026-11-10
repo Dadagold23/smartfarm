@@ -7,15 +7,13 @@ Zones inherit the farm-level check: zone.* permissions gate the action,
 and the parent farm must be accessible at the corresponding level.
 """
 
-from datetime import datetime, timezone
-
 from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.core.permissions import satisfies
-from app.models.farm import Farm, IrrigationZone, ZoneControlMode
+from app.models.farm import Farm, IrrigationZone
 from app.models.user import User
 from app.services import audit_service
 
@@ -220,10 +218,6 @@ def create_zone(db: Session, farm_id: int, payload, user: User, held: set[str], 
         status=payload.status,
         geometry=payload.geometry,
         control_mode=payload.control_mode,
-        is_running=payload.is_running,
-        emergency_stop=payload.emergency_stop,
-        current_flow_lpm=payload.current_flow_lpm,
-        pressure_bar=payload.pressure_bar,
         max_application_mm_per_hour=payload.max_application_mm_per_hour,
     )
     db.add(zone)
@@ -276,87 +270,22 @@ def update_zone(db: Session, zone_id: int, payload, user: User, held: set[str], 
         )
         if used + data["area_ha"] > farm.area_ha:
             raise BusinessRuleError("zone area exceeds remaining farm area")
-    if "emergency_stop" in data and data["emergency_stop"] is True:
-        zone.is_running = False
-        zone.last_stopped_at = datetime.now(timezone.utc).isoformat()
-    if "is_running" in data and data["is_running"] is True and not zone.emergency_stop:
-        zone.last_started_at = datetime.now(timezone.utc).isoformat()
+    if data.get("status") is not None and data["status"].value != "active" and zone.is_running:
+        raise BusinessRuleError("stop irrigation before changing a running zone's status")
+    if (
+        zone.is_running
+        and "max_application_mm_per_hour" in data
+        and data["max_application_mm_per_hour"] != zone.max_application_mm_per_hour
+    ):
+        raise BusinessRuleError(
+            "stop irrigation before changing a running zone's application-rate cap"
+        )
     for field, value in data.items():
         setattr(zone, field, value)
-    if zone.emergency_stop:
-        zone.is_running = False
     audit_service.log(
         db, user_id=user.id, actor_label=user.email, action="zone.update",
         resource_type="irrigation_zone", resource_id=zone.id,
         details={"fields": sorted(data.keys())}, ip_address=ip_address,
-    )
-    db.commit()
-    db.refresh(zone)
-    return zone
-
-
-def set_zone_runtime(
-    db: Session,
-    zone_id: int,
-    user: User,
-    held: set[str],
-    action: str,
-    control_mode: ZoneControlMode | None = None,
-    ip_address: str = "",
-) -> IrrigationZone:
-    if not (
-        satisfies("zone.update", held)
-        or satisfies("valve.control", held)
-        or satisfies("estop.trigger", held)
-    ):
-        from app.core.exceptions import PermissionDeniedError
-
-        raise PermissionDeniedError("missing permission to control irrigation zones")
-
-    zone = get_zone(db, zone_id, user, held, "update")
-    now = datetime.now(timezone.utc).isoformat()
-
-    if action == "start":
-        if zone.emergency_stop:
-            raise BusinessRuleError("zone cannot start while emergency stop is active")
-        zone.is_running = True
-        zone.control_mode = control_mode or zone.control_mode or ZoneControlMode.automatic
-        zone.last_started_at = now
-        zone.last_stopped_at = None
-    elif action == "stop":
-        zone.is_running = False
-        zone.last_stopped_at = now
-    elif action == "emergency_stop":
-        if not satisfies("estop.trigger", held):
-            from app.core.exceptions import PermissionDeniedError
-
-            raise PermissionDeniedError("missing permission estop.trigger")
-        zone.emergency_stop = True
-        zone.is_running = False
-        zone.last_stopped_at = now
-    elif action == "clear_emergency_stop":
-        if not satisfies("estop.trigger", held):
-            from app.core.exceptions import PermissionDeniedError
-
-            raise PermissionDeniedError("missing permission estop.trigger")
-        zone.emergency_stop = False
-    else:
-        raise BusinessRuleError(f"unsupported control action '{action}'")
-
-    if zone.control_mode:
-        zone.control_mode = control_mode or zone.control_mode
-    if zone.emergency_stop:
-        zone.is_running = False
-
-    audit_service.log(
-        db,
-        user_id=user.id,
-        actor_label=user.email,
-        action=f"zone.{action}",
-        resource_type="irrigation_zone",
-        resource_id=zone.id,
-        details={"farm_id": zone.farm_id, "control_mode": zone.control_mode.value if hasattr(zone.control_mode, "value") else zone.control_mode},
-        ip_address=ip_address,
     )
     db.commit()
     db.refresh(zone)
@@ -369,6 +298,8 @@ def delete_zone(db: Session, zone_id: int, user: User, held: set[str], ip_addres
 
         raise PermissionDeniedError("missing permission zone.delete")
     zone = get_zone(db, zone_id, user, held, "update")
+    if zone.is_running:
+        raise BusinessRuleError("stop irrigation before deleting a running zone")
     zone.is_deleted = True
     # Tombstone the unique code so the farm can reuse it for a new zone.
     zone.code = f"{zone.code}~del{zone.id}"[:32]

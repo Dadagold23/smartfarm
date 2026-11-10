@@ -13,7 +13,7 @@ Two hard-boundary layers, by design:
 
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Any
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -42,6 +42,12 @@ class DeviceCreate(BaseModel):
     device_type: DeviceType = DeviceType.soil_probe
     model: str = Field(default="", max_length=120)
     firmware_version: str = Field(default="", max_length=64)
+
+    @model_validator(mode="after")
+    def _controller_requires_zone(self) -> "DeviceCreate":
+        if self.device_type == DeviceType.irrigation_controller and self.zone_id is None:
+            raise ValueError("irrigation controllers must be assigned to a zone")
+        return self
 
 
 class DeviceUpdate(BaseModel):
@@ -101,16 +107,13 @@ class DeviceStatusOut(BaseModel):
     open_faults: list[FaultOut] = []
 
 
-class DeviceCommandCreate(BaseModel):
-    command: str = Field(min_length=1, max_length=120)
-    payload: dict[str, Any] = Field(default_factory=dict)
-    requires_ack: bool = True
-    ttl_seconds: int | None = Field(default=300, ge=30, le=86400)
-
-
 class DeviceCommandAck(BaseModel):
-    status: DeviceCommandStatus = DeviceCommandStatus.acked
+    status: Literal["acked", "failed"] = "acked"
     message: str | None = Field(default=None, max_length=500)
+    observed_running: bool | None = None
+    interlocks_clear: bool | None = None
+    flow_lpm: Decimal | None = Field(default=None, ge=0, le=2000)
+    pressure_bar: Decimal | None = Field(default=None, ge=0, le=100)
 
 
 class DeviceCommandOut(BaseModel):
@@ -118,6 +121,8 @@ class DeviceCommandOut(BaseModel):
     id: int
     device_id: int
     farm_id: int
+    zone_id: int | None
+    control_action: str | None
     command: str
     payload_json: str
     status: DeviceCommandStatus
@@ -129,6 +134,31 @@ class DeviceCommandOut(BaseModel):
     expires_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+class DeviceCommandListOut(BaseModel):
+    items: list[DeviceCommandOut]
+
+
+class DeviceHeartbeatOut(BaseModel):
+    ok: bool
+    last_seen_at: datetime
+
+
+class ControllerRuntimeIn(BaseModel):
+    zone_id: int
+    start_command_id: int
+    is_running: bool
+    completed: bool = False
+    flow_lpm: Decimal | None = Field(default=None, ge=0, le=2000)
+    pressure_bar: Decimal | None = Field(default=None, ge=0, le=100)
+    delivered_volume_m3: Decimal | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def _completion_requires_stopped_state(self) -> "ControllerRuntimeIn":
+        if self.completed and self.is_running:
+            raise ValueError("completed runtime report must indicate the zone is stopped")
+        return self
 
 
 # ---------------------------------------------------------------------------

@@ -35,6 +35,7 @@ class DeviceType(str, enum.Enum):
     weather_station = "weather_station"
     combined_station = "combined_station"
     gateway = "gateway"
+    irrigation_controller = "irrigation_controller"
     other = "other"  # spec: "other" device class (valves etc. arrive Phase 4)
 
 
@@ -49,6 +50,7 @@ class DeviceCommandStatus(str, enum.Enum):
     acked = "acked"
     failed = "failed"
     expired = "expired"
+    cancelled = "cancelled"
 
 
 class FaultType(str, enum.Enum):
@@ -132,6 +134,10 @@ class DeviceCommand(Base, TimestampMixin):
     farm_id: Mapped[int] = mapped_column(
         ForeignKey("farms.id", ondelete="CASCADE"), index=True, nullable=False
     )
+    zone_id: Mapped[int | None] = mapped_column(
+        ForeignKey("irrigation_zones.id", ondelete="CASCADE"), index=True, nullable=True
+    )
+    control_action: Mapped[str | None] = mapped_column(String(32), nullable=True)
     command: Mapped[str] = mapped_column(String(120), nullable=False)
     payload_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
     status: Mapped[DeviceCommandStatus] = mapped_column(
@@ -147,6 +153,7 @@ class DeviceCommand(Base, TimestampMixin):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     device: Mapped[Device] = relationship(back_populates="commands")
+    zone: Mapped[Optional["IrrigationZone"]] = relationship()  # noqa: F821
 
 
 class DeviceFaultEvent(Base, TimestampMixin):

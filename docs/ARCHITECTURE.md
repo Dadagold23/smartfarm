@@ -103,6 +103,15 @@ predictions to independently control physical irrigation equipment").
 Exit criteria: acceptance reqs 8, 10, 11 — sprinklers controlled safely,
 consumption metered, safe local operation without internet.
 
+Status: the backend control foundation now binds each zone to one active
+irrigation controller, accepts only approved schedule-based starts, queues
+device-authenticated commands, and changes reported runtime state only after
+controller acknowledgement. Backend emergency stops latch immediately and
+report when physical shutdown is unconfirmed. This does **not** complete the
+hardware safety exit criteria: local emergency-stop wiring, pump/valve
+interlocks, watchdog/offline behavior, and live ESP32/Raspberry Pi operation
+must be implemented and verified on the target hardware.
+
 ### Phase 5 — Delivery & field operations
 Modules: **10** (AI Agricultural Advisory), **14** (Notifications & Alerts),
 **15** (Reports & Analytics), **16** (Mobile Application & Field Operations,
@@ -130,8 +139,8 @@ Exit criteria: acceptance reqs 13, 14 and full production readiness.
 | 5 | Soil Intelligence & Moisture Monitoring | 2 | **Done** (ingestion, storage, reads, fault flags; ET-based depletion joins Phase 3) |
 | 6 | Weather Intelligence & Forecast Integration | 2 | **Done** (observations + provider forecasts, provenance-flagged) |
 | 7 | Intelligent Irrigation Scheduling Engine | 3 | Planned |
-| 8 | Smart Sprinkler Distribution Management | 4 | Planned |
-| 9 | IoT Hardware & Communication Integration | 2 (telemetry) + 4 (control) | **Done for telemetry** (device auth, HTTP + MQTT ingestion, fault detection, simulators); device *control* remains Phase 4 |
+| 8 | Smart Sprinkler Distribution Management | 4 | Backend zone-control foundation implemented; hardware operation and local interlocks pending |
+| 9 | IoT Hardware & Communication Integration | 2 (telemetry) + 4 (control) | **Telemetry done**; authenticated controller command polling/acknowledgement and runtime reporting implemented; MQTT downlink and live hardware verification pending |
 | 10 | AI Agricultural Advisory System | 5 | Planned |
 | 11 | Water Resource & Consumption Management | 4 | Planned |
 | 12 | Crop Health & Growth Monitoring | 3 | Planned |

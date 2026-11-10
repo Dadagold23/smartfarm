@@ -1,9 +1,11 @@
 """Module 2 — Farm and irrigation-zone models."""
 
 import enum
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    DateTime,
     Enum,
     ForeignKey,
     Integer,
@@ -149,8 +151,8 @@ class IrrigationZone(Base, TimestampMixin, SoftDeleteMixin):
     emergency_stop: Mapped[bool] = mapped_column(default=False, nullable=False)
     current_flow_lpm: Mapped[Decimal | None] = mapped_column(Numeric(8, 2), nullable=True)
     pressure_bar: Mapped[Decimal | None] = mapped_column(Numeric(6, 2), nullable=True)
-    last_started_at: Mapped[str | None] = mapped_column(Text, nullable=True)
-    last_stopped_at: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    last_stopped_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Phase 3: Soil physical profile for water retention (field capacity, wilting point)
     soil_profile_id: Mapped[int | None] = mapped_column(

@@ -101,16 +101,14 @@ class FarmOut(BaseModel):
 
 
 class ZoneBase(GeometryMixin):
+    model_config = ConfigDict(extra="forbid")
+
     name: str = Field(min_length=1, max_length=255)
     code: str = Field(min_length=1, max_length=32, pattern=CODE_RE)
     area_ha: Decimal | None = Field(default=None, gt=0)
     sequence_number: int = Field(default=0, ge=0)
     status: ZoneStatus = ZoneStatus.active
     control_mode: ZoneControlMode = ZoneControlMode.automatic
-    is_running: bool = False
-    emergency_stop: bool = False
-    current_flow_lpm: Decimal | None = Field(default=None, ge=0, le=2000)
-    pressure_bar: Decimal | None = Field(default=None, ge=0, le=100)
     max_application_mm_per_hour: Decimal | None = Field(default=None, gt=0, le=500)
 
 
@@ -119,27 +117,39 @@ class ZoneCreate(ZoneBase):
 
 
 class ZoneUpdate(GeometryMixin):
+    model_config = ConfigDict(extra="forbid")
+
     name: str | None = Field(default=None, min_length=1, max_length=255)
     code: str | None = Field(default=None, min_length=1, max_length=32, pattern=CODE_RE)
     area_ha: Decimal | None = Field(default=None, gt=0)
     sequence_number: int | None = Field(default=None, ge=0)
     status: ZoneStatus | None = None
-    control_mode: ZoneControlMode | None = None
-    is_running: bool | None = None
-    emergency_stop: bool | None = None
-    current_flow_lpm: Decimal | None = Field(default=None, ge=0, le=2000)
-    pressure_bar: Decimal | None = Field(default=None, ge=0, le=100)
     max_application_mm_per_hour: Decimal | None = Field(default=None, gt=0, le=500)
 
 
 class ZoneControlRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     action: Literal["start", "stop", "emergency_stop", "clear_emergency_stop"]
     control_mode: ZoneControlMode | None = None
+    schedule_id: int | None = Field(default=None, gt=0)
 
 
 class ZoneOut(ZoneBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
     farm_id: int
+    is_running: bool
+    emergency_stop: bool
+    current_flow_lpm: Decimal | None
+    pressure_bar: Decimal | None
+    last_started_at: datetime | None
+    last_stopped_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+class ZoneControlOut(ZoneOut):
+    command_id: int | None = None
+    command_status: str | None = None
+    control_message: str | None = None

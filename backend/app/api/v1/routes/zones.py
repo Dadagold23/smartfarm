@@ -2,12 +2,23 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request
 
-from app.api.deps import CurrentUser, DbSession, client_ip, require_permissions
-from app.core.permissions import satisfies
-from app.schemas.farm import ZoneControlRequest, ZoneCreate, ZoneOut, ZoneUpdate
-from app.services import farm_service
+from app.api.deps import (
+    CurrentUser,
+    DbSession,
+    HeldPermissions,
+    client_ip,
+    require_permissions,
+)
+from app.schemas.farm import (
+    ZoneControlOut,
+    ZoneControlRequest,
+    ZoneCreate,
+    ZoneOut,
+    ZoneUpdate,
+)
+from app.services import control_service, farm_service
 
 router = APIRouter()
 
@@ -15,22 +26,6 @@ RequiresZoneRead = Annotated[set[str], Depends(require_permissions("zone.read"))
 RequiresZoneCreate = Annotated[set[str], Depends(require_permissions("zone.create"))]
 RequiresZoneUpdate = Annotated[set[str], Depends(require_permissions("zone.update"))]
 RequiresZoneDelete = Annotated[set[str], Depends(require_permissions("zone.delete"))]
-
-
-def _require_zone_control_or_valve(held: set[str]) -> set[str]:
-    if not (
-        satisfies("zone.update", held)
-        or satisfies("valve.control", held)
-        or satisfies("estop.trigger", held)
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="missing permissions: zone.update or valve.control or estop.trigger",
-        )
-    return held
-
-
-RequiresZoneControl = Annotated[set[str], Depends(_require_zone_control_or_valve)]
 
 
 @router.get("/farms/{farm_id}/zones", response_model=list[ZoneOut])
@@ -88,25 +83,30 @@ def get_zone_control(
     return ZoneOut.model_validate(zone)
 
 
-@router.post("/zones/{zone_id}/control", response_model=ZoneOut)
+@router.post("/zones/{zone_id}/control", response_model=ZoneControlOut)
 def set_zone_control(
     zone_id: int,
     payload: ZoneControlRequest,
     request: Request,
     db: DbSession,
     current_user: CurrentUser,
-    held: RequiresZoneControl,
+    held: HeldPermissions,
 ):
-    zone = farm_service.set_zone_runtime(
+    zone, command, message = control_service.set_zone_control(
         db,
         zone_id,
         current_user,
         held,
         payload.action,
         control_mode=payload.control_mode,
+        schedule_id=payload.schedule_id,
         ip_address=client_ip(request),
     )
-    return ZoneOut.model_validate(zone)
+    result = ZoneControlOut.model_validate(zone)
+    result.command_id = command.id if command is not None else None
+    result.command_status = command.status.value if command is not None else None
+    result.control_message = message
+    return result
 
 
 @router.delete("/zones/{zone_id}", status_code=204)
